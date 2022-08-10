@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.esm.dao.EmployeeDao">
+
+    <resultMap type="com.example.esm.entity.Employee" id="EmployeeMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="login" column="login" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="salary" column="salary" jdbcType="NUMERIC"/>
+    </resultMap>
+
+
+    <select id="queryById" resultMap="EmployeeMap">
+        select id,
+               login,
+               name,
+               salary
+        from employee
+        where id = #{id}
+    </select>
+
+
+    <select id="queryAllByLimit" resultMap="EmployeeMap">
+        select
+        id, login, name, salary
+        from employee
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="login != null and login != ''">
+                and login = #{login}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="salary != null">
+                and salary = #{salary}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from employee
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="login != null and login != ''">
+                and login = #{login}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="salary != null">
+                and salary = #{salary}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into employee(login, name, salary)
+        values (#{login}, #{name}, #{salary})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into employee(login, name, salary)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.login}, #{entity.name}, #{entity.salary})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into employee(id,login, name, salary)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.id},#{entity.login}, #{entity.name}, #{entity.salary})
+        </foreach>
+        on duplicate key update
+        id=values(id),
+        login = values(login),
+        name = values(name),
+        salary = values(salary)
+    </insert>
+
+
+    <update id="update">
+        update employee
+        <set>
+            <if test="login != null and login != ''">
+                login = #{login},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="salary != null">
+                salary = #{salary},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <delete id="deleteById">
+        delete
+        from employee
+        where id = #{id}
+    </delete>
+
+</mapper>
+
